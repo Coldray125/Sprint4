@@ -1,5 +1,5 @@
 public class Praktikum {
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         Account account = new Account("");
         account.checkNameToEmboss();
     }

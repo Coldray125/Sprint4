@@ -1,62 +1,42 @@
 import com.github.javafaker.Faker;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+import java.util.List;
+
+@RunWith(Parameterized.class)
 public class AccountTests {
 
-    Faker faker = new Faker();
+    private String input;
+    private Boolean expected;
 
-    @Test
-    public void validName() throws Exception {
-        Account account = new Account(faker.name().firstName() + " " + faker.name().lastName());
-        Assert.assertTrue((account.checkNameToEmboss()));
+    public AccountTests(String input, Boolean expected) {
+        this.expected = expected;
+        this.input = input;
+    }
+
+    @Parameterized.Parameters(name = "name {0}")
+    public static Object[][] inputNames() {
+        Faker faker = new Faker();
+        return new Object[][]{
+                {faker.name().firstName() + " " + faker.name().lastName(), true},
+                {faker.name().firstName(), false},
+                {" " + faker.name().firstName() + " " + faker.name().lastName(), false},
+                {faker.name().firstName() + " " + faker.name().lastName() + " ", false},
+                {" " + faker.name().firstName() + faker.name().lastName()+ " ", false},
+                {(faker.letterify("?????????? ?????????")), false},
+                {faker.letterify("??"), false},
+                {"", false},
+                {"Тимоти Шаламе", true},
+                {null, false},
+        };
     }
 
     @Test
-    public void oneWord() throws Exception {
-        Account account = new Account(faker.name().firstName());
-        Assert.assertFalse(account.checkNameToEmboss());
-    }
-
-    @Test
-    public void spaceBeginning() throws Exception {
-        Account account = new Account(" " + faker.name().firstName() + " " + faker.name().lastName());
-        Assert.assertFalse((account.checkNameToEmboss()));
-    }
-
-    @Test
-    public void spaceEnd() throws Exception {
-        Account account = new Account(faker.name().firstName() + " " + faker.name().lastName() + " ");
-        Assert.assertFalse((account.checkNameToEmboss()));
-    }
-
-    @Test
-    public void noSpaceMiddle() throws Exception {
-        Account account = new Account(" " + faker.name().firstName() + faker.name().lastName());
-        Assert.assertFalse((account.checkNameToEmboss()));
-    }
-
-    @Test
-    public void moreThan19() throws Exception {
-        Account account = new Account(faker.letterify("?????????? ?????????"));
-        Assert.assertFalse((account.checkNameToEmboss()));
-    }
-
-    @Test
-    public void lessThan2() throws Exception {
-        Account account = new Account(faker.letterify("??"));
-        Assert.assertFalse((account.checkNameToEmboss()));
-    }
-
-    @Test
-    public void blankName() throws Exception {
-        Account account = new Account("");
-        Assert.assertFalse((account.checkNameToEmboss()));
-    }
-
-    @Test
-    public void russianLettersName() throws Exception {
-        Account account = new Account("Тимоти Шаламе");
-        Assert.assertTrue((account.checkNameToEmboss()));
+    public void checkNameValidation() {
+        Account account = new Account(input);
+        Assert.assertEquals(expected, account.checkNameToEmboss());
     }
 }
